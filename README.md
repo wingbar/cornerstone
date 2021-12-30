@@ -24,4 +24,4 @@ To do the bonus task I researched more about Handlebars and found out how to get
 
 # End Thoughts
 
-I had a really fun time with this part! I really like to learn and getting used to the new languages and setup was interesting. 
+I had a really fun time with this task! I really like to learn and getting used to the new languages and setup was interesting. 
