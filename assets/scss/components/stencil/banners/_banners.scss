@@ -30,5 +30,11 @@
 
     + .banner {
         margin-top: spacing("single");
+
+    }
+    p {
+        padding-left: 1rem;
+        padding-right: 1rem;
+        display: inline-block;
     }
 }

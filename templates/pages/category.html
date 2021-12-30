@@ -17,6 +17,31 @@ category:
 
 {{#partial "page"}}
 
+
+
+{{#if customer}}
+<aside class="product-listing-container banners" data-banner-location="top">
+    <aside class="banner">
+
+        <p>
+            Hello, {{customer.name}}. 
+        </p>
+
+        <p>
+            Your email: {{customer.email}}. 
+        </p>
+
+        {{#if customer.phone}}
+        <p>
+            Your phone: {{customer.phone}}.
+        </p>
+        {{/if}}
+
+    </aside>
+</aside>
+<hr>
+{{/if}}
+
 {{> components/common/breadcrumbs breadcrumbs=breadcrumbs}}
 {{#if category.image}}
     {{> components/common/responsive-img
@@ -49,6 +74,11 @@ category:
     {{/if}}
 
     <div class="page-content" id="product-listing-container">
+        <button class="button add-all-cart" data-cart-id="{{cart_id}}">Add All To Cart</button>
+        
+        {{#if cart_id}}
+        <button class="button remove-all-cart" data-cart-id="{{cart_id}}">Remove All Items</button>
+        {{/if}}
         {{> components/category/product-listing}}
         {{{region name="category_below_content"}}}
     </div>
@@ -56,3 +86,28 @@ category:
 
 {{/partial}}
 {{> layout/base}}
+
+
+<script>
+    // Hover Effect for Special Item
+  
+    $('.card-figure').hover(
+      function () {
+        if (this.parentElement.dataset.test == 'card-112') {
+          var image = $(this).find('.card-image');
+          var newImg = image.attr('data-hoverimage');
+          var currentImg = image.attr('src');
+          if (newImg && newImg != '') image.attr('src', newImg);
+        }
+      },
+      function () {
+        if (this.parentElement.dataset.test == 'card-112') {
+          var image = $(this).find('.card-image');
+          var newImg = image.attr('data-src');
+          var currentImg = image.attr('src');
+          if (newImg && newImg != '') image.attr('src', newImg);
+        }
+      }
+    );
+
+    </script>

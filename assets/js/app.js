@@ -64,6 +64,7 @@ const customClasses = {};
 window.stencilBootstrap = function stencilBootstrap(pageType, contextJSON = null, loadGlobal = true) {
     const context = JSON.parse(contextJSON || '{}');
 
+
     return {
         load() {
             $(() => {
@@ -92,7 +93,11 @@ window.stencilBootstrap = function stencilBootstrap(pageType, contextJSON = null
                         imported.default.load(context);
                     });
                 });
+                
             });
+            
         },
+        
     };
 };
+

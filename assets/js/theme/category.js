@@ -3,6 +3,11 @@ import CatalogPage from './catalog';
 import compareProducts from './global/compare-products';
 import FacetedSearch from './common/faceted-search';
 import { createTranslationDictionary } from '../theme/common/utils/translations-utils';
+import { alertModal } from './global/modal';
+import utils from '@bigcommerce/stencil-utils';
+import cartEditing from './cart/cart-editing'
+
+
 
 export default class Category extends CatalogPage {
     constructor(context) {
@@ -28,6 +33,12 @@ export default class Category extends CatalogPage {
     }
 
     onReady() {
+
+        let categoryItems = []
+        $('li.product').each(function(index, product){
+            categoryItems.push({'quantity': 1, 'productId': $('.quickview', this).attr('data-product-id')})
+        })
+
         this.arrangeFocusOnSortBy();
 
         $('[data-button-type="add-cart"]').on('click', (e) => this.setLiveRegionAttributes($(e.currentTarget).next(), 'status', 'polite'));
@@ -35,6 +46,7 @@ export default class Category extends CatalogPage {
         this.makeShopByPriceFilterAccessible();
 
         compareProducts(this.context);
+
 
         if ($('#facetedSearch').length > 0) {
             this.initFacetedSearch();
@@ -45,8 +57,98 @@ export default class Category extends CatalogPage {
 
         $('a.reset-btn').on('click', () => this.setLiveRegionsAttributes($('span.reset-message'), 'status', 'polite'));
 
+
         this.ariaNotifyNoProducts();
+
+        let add_cart_id = document.querySelector('.add-all-cart').getAttribute('data-cart-id');
+        $('.add-all-cart').on('click', () => this.addAllCart(add_cart_id));
+
+        if ($('.remove-all-cart').length > 0) {
+            let cl_cart_id = document.querySelector('.remove-all-cart').getAttribute('data-cart-id');
+            $('.remove-all-cart').on('click', () => this.removeAllCart(cl_cart_id));
+            
+        }
+
+        
+
     }
+
+
+    removeAllCart(cartId){
+
+        
+        fetch('/api/storefront/carts/' + cartId, {
+            method: "DELETE",
+            credentials: "same-origin",
+        })
+        
+        .then(response => {
+            if (response.ok) {
+                let modal = alertModal()
+                modal.open()
+                modal.updateContent(`<h3>Cart Cleared.</h3>`, { wrap: true });
+                window.setTimeout(function(){location.reload()},3000);
+
+                $('.cart-quantity')
+                    .text("")
+                    .toggleClass('countPill');
+                if (utils.tools.storage.localStorageAvailable()) {
+                    localStorage.setItem('cart-quantity', 0);
+                }                
+            }
+        })
+        .catch(error => console.log(error));
+    }
+
+
+    addAllCart(cartId) {
+        const data = { lineItems: this.getAllCategoryProductIds() }
+
+               cartEditing
+                    .getCart(
+                        '/api/storefront/cart/?include=lineItems.digitalItems.options,lineItems.physicalItems.options'
+                    )
+                    .then((existingCart) => {
+                        if (existingCart[0]?.id) {
+                            cartEditing
+                                .addCartItem('/api/storefront/carts/', existingCart[0].id, data)
+                                .then((response) => {
+                                    let modal = alertModal()
+                                    modal.open()
+                                    modal.updateContent(`<h3>All available items added to cart</h3> <p>This message will close shortly.</p>`, { wrap: true });
+                                    window.setTimeout(function(){location.reload()},3000);
+
+                                })
+                                .catch(error => console.log(error));
+                            } else {
+                            cartEditing
+                                .createCart('/api/storefront/cart', data)
+                                .then((response) => {
+                                    let modal = alertModal()
+                                    modal.open()
+                                    modal.updateContent(`<h3>All available items added to cart</h3> <p>This message will close shortly.</p>`, { wrap: true });
+                                    window.setTimeout(function(){location.reload()},3000);
+                                })
+                                .catch(error => console.log(error));
+                            
+                            }
+                    })
+        }
+    
+
+        getAllCategoryProductIds() {
+            const ids = []
+            // pull id's for each item on the page
+            $('[data-product-id]').each((index, ele) => {
+                ids.push($(ele).attr('data-product-id'))
+            })
+    
+            return ids.map((id) => ({
+                quantity: 1,
+                productId: id,
+            }))
+        }
+
 
     ariaNotifyNoProducts() {
         const $noProductsMessage = $('[data-no-products-notification]');

@@ -32,6 +32,11 @@ blog:
     {{{region name="home_below_featured_products"}}}
 
     {{#if products.top_sellers}}
+    {{> components/products/top products=products.top_sellers columns=theme_settings.homepage_top_products_column_count}}
+    {{/if}}
+    {{{region name="home_below_top_products"}}}
+
+    {{#if products.top_sellers}}
         {{> components/products/top products=products.top_sellers columns=theme_settings.homepage_top_products_column_count}}
     {{/if}}
     {{{region name="home_below_top_products"}}}
